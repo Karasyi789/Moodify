@@ -2,8 +2,15 @@ import 'package:flutter/material.dart';
 import '../widgest/mood_button.dart';
 import 'package:go_router/go_router.dart';
 
-class HomePage extends StatelessWidget {
-  HomePage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final TextEditingController moodController = TextEditingController();
 
   final List<Map<String, String>> moods = const [
     {"emoji": "😄", "label": "happy"},
@@ -12,7 +19,8 @@ class HomePage extends StatelessWidget {
     {"emoji": "🎧", "label": "focus"},
   ];
 
-  final TextEditingController moodController = TextEditingController();
+  // Tambahan nanti: list untuk lagu trending (di part_4)
+  // List<dynamic> trendingSongs = [];
 
   @override
   Widget build(BuildContext context) {
