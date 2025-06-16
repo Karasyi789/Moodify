@@ -8,7 +8,7 @@ class AppRouter {
   static final router = GoRouter(
     initialLocation: '/',
     routes: [
-      GoRoute(path: '/', builder: (context, state) => const HomePage()),
+      GoRoute(path: '/', builder: (context, state) => HomePage()),
       GoRoute(
         path: '/playlist/:mood',
         builder: (context, state) {

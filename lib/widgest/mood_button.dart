@@ -17,30 +17,19 @@ class MoodButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFFD7CCC8), // Light mocha
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 5,
-              offset: Offset(2, 2),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.purple.withOpacity(0.1),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 26)),
+            Text(emoji, style: const TextStyle(fontSize: 32)),
             const SizedBox(height: 6),
             Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF4E342E), // Dark brown text
-                fontWeight: FontWeight.w500,
-              ),
+              label.toUpperCase(),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
           ],
         ),
