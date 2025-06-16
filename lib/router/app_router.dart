@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../pages/homepage.dart';
 import '../pages/playlist.dart';
 import '../pages/player.dart';
+import '../pages/search.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -23,6 +24,7 @@ class AppRouter {
           return PlayerPage(playlistId: playlistId);
         },
       ),
+      GoRoute(path: '/search', builder: (context, state) => const SearchPage()),
     ],
   );
 }
