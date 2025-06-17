@@ -16,10 +16,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final List<Map<String, String>> moods = const [
-    {"emoji": "😄", "label": "happy"},
-    {"emoji": "😢", "label": "sad"},
-    {"emoji": "😌", "label": "relax"},
-    {"emoji": "🎧", "label": "focus"},
+    {"emoji": "😄", "label": "Happy"},
+    {"emoji": "😡", "label": "Marah"},
+    {"emoji": "😢", "label": "Sedih"},
+    {"emoji": "😌", "label": "Santai"},
+    {"emoji": "🎧", "label": "Fokus"},
   ];
 
   final TextEditingController moodController = TextEditingController();
@@ -136,20 +137,15 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(width: 10),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFB3925A),
+                      backgroundColor: const Color.fromARGB(210, 192, 168, 126),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     onPressed: () {
-                      if (moodController.text.isNotEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              "Mood dikirim: ${moodController.text}",
-                            ),
-                          ),
-                        );
+                      final mood = moodController.text.trim();
+                      if (mood.isNotEmpty) {
+                        context.go('/playlist/$mood');
                       }
                     },
                     child: const Text("Kirim"),
@@ -165,17 +161,20 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(height: 12),
-              Wrap(
-                spacing: 16,
-                runSpacing: 16,
+              Row(
                 children:
                     moods.map((mood) {
-                      return MoodButton(
-                        emoji: mood['emoji']!,
-                        label: mood['label']!,
-                        onTap: () {
-                          context.go('/playlist/${mood['label']}');
-                        },
+                      return Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          child: MoodButton(
+                            emoji: mood['emoji']!,
+                            label: mood['label']!,
+                            onTap: () {
+                              context.go('/playlist/${mood['label']}');
+                            },
+                          ),
+                        ),
                       );
                     }).toList(),
               ),
@@ -224,7 +223,8 @@ class _HomePageState extends State<HomePage> {
                           ],
                         ),
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(10),
@@ -236,25 +236,30 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            Text(
-                              song['trackName'] ?? '',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                                color: Color(0xFF4E342E),
+                            Flexible(
+                              child: Text(
+                                song['trackName'] ?? '',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: Color(0xFF4E342E),
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
                               ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
                             ),
-                            Text(
-                              song['artistName'] ?? '',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: Colors.brown,
+                            Flexible(
+                              child: Text(
+                                song['artistName'] ?? '',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.brown,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
