@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -13,6 +15,9 @@ class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
   List<dynamic> searchResults = [];
   bool isLoading = false;
+
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  String? _currentlyPlaying;
 
   Future<void> searchSongs(String query) async {
     if (query.isEmpty) return;
@@ -41,22 +46,30 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
+  Future<void> _launchURL(String url) async {
+    if (!await launchUrl(
+      Uri.parse(url),
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5EFE6), // 🍦 Cream background
+      backgroundColor: const Color(0xFFF5EFE6),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(
-          color: Color(0xFF4E342E),
-        ), // 🟤 Icon warna
+        iconTheme: const IconThemeData(color: Color(0xFF4E342E)),
         title: const Text(
           "Cari Lagu 🔎",
           style: TextStyle(
@@ -70,7 +83,7 @@ class _SearchPageState extends State<SearchPage> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // 🔍 Input Pencarian
+            // 🔍 Input pencarian
             Row(
               children: [
                 Expanded(
@@ -134,6 +147,10 @@ class _SearchPageState extends State<SearchPage> {
                               ),
                           itemBuilder: (context, index) {
                             final song = searchResults[index];
+                            final previewUrl = song['previewUrl'];
+                            final spotifyUrl =
+                                'https://open.spotify.com/search/${Uri.encodeComponent(song['trackName'] + ' ' + song['artistName'])}';
+
                             return Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
@@ -180,6 +197,40 @@ class _SearchPageState extends State<SearchPage> {
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const Spacer(),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(
+                                          _currentlyPlaying == previewUrl
+                                              ? Icons.pause
+                                              : Icons.play_arrow,
+                                          color: Colors.green,
+                                        ),
+                                        onPressed: () async {
+                                          if (_currentlyPlaying == previewUrl) {
+                                            await _audioPlayer.pause();
+                                            setState(() {
+                                              _currentlyPlaying = null;
+                                            });
+                                          } else {
+                                            await _audioPlayer.play(
+                                              UrlSource(previewUrl),
+                                            );
+                                            setState(() {
+                                              _currentlyPlaying = previewUrl;
+                                            });
+                                          }
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.open_in_new),
+                                        onPressed: () => _launchURL(spotifyUrl),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
