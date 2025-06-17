@@ -19,6 +19,16 @@ class _SearchPageState extends State<SearchPage> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   String? _currentlyPlaying;
 
+  @override
+  void initState() {
+    super.initState();
+    _audioPlayer.onPlayerComplete.listen((event) {
+      setState(() {
+        _currentlyPlaying = null;
+      });
+    });
+  }
+
   Future<void> searchSongs(String query) async {
     if (query.isEmpty) return;
     setState(() {
@@ -83,7 +93,6 @@ class _SearchPageState extends State<SearchPage> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // 🔍 Input pencarian
             Row(
               children: [
                 Expanded(
@@ -120,9 +129,7 @@ class _SearchPageState extends State<SearchPage> {
               ],
             ),
             const SizedBox(height: 20),
-
             if (isLoading) const CircularProgressIndicator(),
-
             if (!isLoading)
               Expanded(
                 child:
@@ -206,13 +213,13 @@ class _SearchPageState extends State<SearchPage> {
                                       IconButton(
                                         icon: Icon(
                                           _currentlyPlaying == previewUrl
-                                              ? Icons.pause
-                                              : Icons.play_arrow,
+                                              ? Icons.pause_circle_filled
+                                              : Icons.play_circle_fill,
                                           color: Colors.green,
                                         ),
                                         onPressed: () async {
                                           if (_currentlyPlaying == previewUrl) {
-                                            await _audioPlayer.pause();
+                                            await _audioPlayer.stop();
                                             setState(() {
                                               _currentlyPlaying = null;
                                             });
