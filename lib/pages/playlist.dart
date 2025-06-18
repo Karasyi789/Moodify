@@ -24,6 +24,15 @@ class _PlaylistPageState extends State<PlaylistPage> {
   void initState() {
     super.initState();
     fetchSongs();
+
+    // Listener untuk deteksi lagu selesai diputar
+    _audioPlayer.onPlayerStateChanged.listen((PlayerState state) {
+      if (state == PlayerState.completed) {
+        setState(() {
+          playingIndex = null;
+        });
+      }
+    });
   }
 
   @override
@@ -82,7 +91,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                   ),
                   const Spacer(),
                   Text(
-                    'Ciee... yang lagi ${widget.mood.toUpperCase()}',
+                    ' ${widget.mood.toUpperCase()}',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 20,
@@ -181,7 +190,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
                                               color: Colors.green,
                                             ),
                                             onPressed: () async {
-                                              final url = song['trackViewUrl'];
+                                              final query = Uri.encodeComponent(
+                                                '${song['trackName']} ${song['artistName']}',
+                                              );
+                                              final url =
+                                                  'https://open.spotify.com/search/$query';
                                               if (url != null) {
                                                 final uri = Uri.parse(url);
                                                 if (await canLaunchUrl(uri)) {

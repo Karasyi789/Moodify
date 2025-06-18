@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:audioplayers/audioplayers.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../widgest/mood_button.dart';
 
@@ -78,7 +79,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5EFE6),
+      backgroundColor: const Color(0xFFEDE0D4),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -122,7 +123,7 @@ class _HomePageState extends State<HomePage> {
                         hintText: "Contoh: Aku merasa senang...",
                         hintStyle: const TextStyle(color: Colors.grey),
                         filled: true,
-                        fillColor: const Color(0xFFEDE0D4),
+                        fillColor: const Color(0xFFF5EFE6),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 14,
@@ -137,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(width: 10),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(210, 192, 168, 126),
+                      backgroundColor: const Color.fromARGB(210, 220, 193, 147),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -193,7 +194,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               trendingSongs.isEmpty
                   ? const Center(child: CircularProgressIndicator())
                   : GridView.builder(
@@ -202,18 +203,22 @@ class _HomePageState extends State<HomePage> {
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate:
                         const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 180,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          childAspectRatio: 0.75,
+                          maxCrossAxisExtent: 160,
+                          mainAxisSpacing: 11,
+                          crossAxisSpacing: 11,
+                          childAspectRatio: 0.64,
                         ),
                     itemBuilder: (context, index) {
                       final song = trendingSongs[index];
+                      final previewUrl = song['previewUrl'];
+                      final spotifyUrl =
+                          'https://open.spotify.com/search/${Uri.encodeComponent(song['trackName'] + ' ' + song['artistName'])}';
+
                       return Container(
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFFBF2),
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(8),
                           boxShadow: const [
                             BoxShadow(
                               color: Colors.black12,
@@ -223,11 +228,10 @@ class _HomePageState extends State<HomePage> {
                           ],
                         ),
                         child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(8),
                               child: Image.network(
                                 song['artworkUrl100'],
                                 height: 80,
@@ -235,72 +239,80 @@ class _HomePageState extends State<HomePage> {
                                 fit: BoxFit.cover,
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            Flexible(
-                              child: Text(
-                                song['trackName'] ?? '',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                  color: Color(0xFF4E342E),
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.center,
+                            Text(
+                              song['trackName'] ?? '',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                color: Color(0xFF4E342E),
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
                             ),
-                            Flexible(
-                              child: Text(
-                                song['artistName'] ?? '',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.brown,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.center,
+                            Text(
+                              song['artistName'] ?? '',
+                              style: const TextStyle(
+                                fontSize: 10.5,
+                                color: Colors.brown,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                IconButton(
-                                  icon: Icon(
-                                    playingIndex == index
-                                        ? Icons.pause_circle_filled
-                                        : Icons.play_circle_fill,
-                                    color: Colors.deepOrange,
-                                  ),
-                                  onPressed:
-                                      () => playPreview(
-                                        song['previewUrl'],
-                                        index,
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(
+                                        playingIndex == index
+                                            ? Icons.pause_circle_filled
+                                            : Icons.play_circle_fill,
+                                        color: Colors.brown,
+                                        size: 20,
                                       ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.open_in_new,
-                                    color: Colors.green,
-                                  ),
-                                  onPressed: () async {
-                                    final url = song['trackViewUrl'];
-                                    if (url != null) {
-                                      final uri = Uri.parse(url);
-                                      if (await canLaunchUrl(uri)) {
-                                        await launchUrl(uri);
-                                      } else {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'Tidak dapat membuka URL',
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                      onPressed:
+                                          () => playPreview(previewUrl, index),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.open_in_new,
+                                        color: Colors.green,
+                                        size: 20,
+                                      ),
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                      onPressed: () async {
+                                        final uri = Uri.parse(spotifyUrl);
+                                        if (await canLaunchUrl(uri)) {
+                                          await launchUrl(uri);
+                                        } else {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Tidak dapat membuka URL',
+                                              ),
                                             ),
-                                          ),
-                                        );
-                                      }
-                                    }
-                                  },
+                                          );
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                const Text(
+                                  '🎵30detik  •lengkap➚',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    color: Colors.grey,
+                                  ),
                                 ),
                               ],
                             ),

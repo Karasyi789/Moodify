@@ -76,7 +76,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5EFE6),
+      backgroundColor: const Color(0xFFEDE0D4),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -109,7 +109,7 @@ class _SearchPageState extends State<SearchPage> {
                       hintText: 'Cari lagu favoritmu...',
                       hintStyle: const TextStyle(color: Colors.grey),
                       filled: true,
-                      fillColor: const Color(0xFFEDE0D4),
+                      fillColor: const Color.fromARGB(255, 245, 241, 235),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 14,
@@ -125,7 +125,7 @@ class _SearchPageState extends State<SearchPage> {
                 const SizedBox(width: 10),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFB3925A),
+                    backgroundColor: const Color.fromARGB(210, 220, 193, 147),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -136,11 +136,14 @@ class _SearchPageState extends State<SearchPage> {
               ],
             ),
             const SizedBox(height: 20),
-            if (isLoading) const CircularProgressIndicator(),
-            if (!isLoading)
+            if (isLoading)
+              const CircularProgressIndicator()
+            else
               Expanded(
                 child:
-                    searchResults.isEmpty
+                    isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : searchResults.isEmpty
                         ? const Center(
                           child: Text(
                             "Belum ada hasil pencarian.",
@@ -154,10 +157,10 @@ class _SearchPageState extends State<SearchPage> {
                           itemCount: searchResults.length,
                           gridDelegate:
                               const SliverGridDelegateWithMaxCrossAxisExtent(
-                                maxCrossAxisExtent: 180,
-                                mainAxisSpacing: 12,
-                                crossAxisSpacing: 12,
-                                childAspectRatio: 3 / 4,
+                                maxCrossAxisExtent: 160,
+                                mainAxisSpacing: 11,
+                                crossAxisSpacing: 11,
+                                childAspectRatio: 0.64,
                               ),
                           itemBuilder: (context, index) {
                             final song = searchResults[index];
@@ -166,10 +169,10 @@ class _SearchPageState extends State<SearchPage> {
                                 'https://open.spotify.com/search/${Uri.encodeComponent(song['trackName'] + ' ' + song['artistName'])}';
 
                             return Container(
-                              padding: const EdgeInsets.all(10),
+                              padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFFFFBF2),
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(8),
                                 boxShadow: const [
                                   BoxShadow(
                                     color: Colors.black12,
@@ -179,10 +182,11 @@ class _SearchPageState extends State<SearchPage> {
                                 ],
                               ),
                               child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius: BorderRadius.circular(18),
                                     child: Image.network(
                                       song['artworkUrl100'],
                                       height: 80,
@@ -190,59 +194,82 @@ class _SearchPageState extends State<SearchPage> {
                                       fit: BoxFit.cover,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
                                   Text(
                                     song['trackName'] ?? '',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 13,
+                                      fontSize: 12,
                                       color: Color(0xFF4E342E),
                                     ),
-                                    maxLines: 2,
+                                    maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.center,
                                   ),
-                                  const SizedBox(height: 4),
                                   Text(
                                     song['artistName'] ?? '',
                                     style: const TextStyle(
-                                      fontSize: 11,
+                                      fontSize: 10.5,
                                       color: Colors.brown,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
                                   ),
                                   const Spacer(),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      IconButton(
-                                        icon: Icon(
-                                          _currentlyPlaying == previewUrl
-                                              ? Icons.pause_circle_filled
-                                              : Icons.play_circle_fill,
-                                          color: Colors.green,
-                                        ),
-                                        onPressed: () async {
-                                          if (_currentlyPlaying == previewUrl) {
-                                            await _audioPlayer.stop();
-                                            setState(() {
-                                              _currentlyPlaying = null;
-                                            });
-                                          } else {
-                                            await _audioPlayer.play(
-                                              UrlSource(previewUrl),
-                                            );
-                                            setState(() {
-                                              _currentlyPlaying = previewUrl;
-                                            });
-                                          }
-                                        },
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(
+                                              _currentlyPlaying == previewUrl
+                                                  ? Icons.pause_circle_filled
+                                                  : Icons.play_circle_fill,
+                                              color: Colors.brown,
+                                              size: 20,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                            onPressed: () async {
+                                              if (_currentlyPlaying ==
+                                                  previewUrl) {
+                                                await _audioPlayer.stop();
+                                                setState(() {
+                                                  _currentlyPlaying = null;
+                                                });
+                                              } else {
+                                                await _audioPlayer.play(
+                                                  UrlSource(previewUrl),
+                                                );
+                                                setState(() {
+                                                  _currentlyPlaying =
+                                                      previewUrl;
+                                                });
+                                              }
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.open_in_new,
+                                              color: Colors.green,
+                                              size: 20,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                            onPressed:
+                                                () => _launchURL(spotifyUrl),
+                                          ),
+                                        ],
                                       ),
-                                      IconButton(
-                                        icon: const Icon(Icons.open_in_new),
-                                        onPressed: () => _launchURL(spotifyUrl),
+                                      const Text(
+                                        '🎵30detik  •lengkap➚',
+                                        style: TextStyle(
+                                          fontSize: 9,
+                                          color: Colors.grey,
+                                        ),
                                       ),
                                     ],
                                   ),
