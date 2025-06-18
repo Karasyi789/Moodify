@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:go_router/go_router.dart'; // WAJIB ditambahkan
+import 'package:go_router/go_router.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PlaylistPage extends StatefulWidget {
   final String mood;
@@ -15,11 +17,19 @@ class PlaylistPage extends StatefulWidget {
 class _PlaylistPageState extends State<PlaylistPage> {
   List<dynamic> songs = [];
   bool isLoading = true;
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  int? playingIndex;
 
   @override
   void initState() {
     super.initState();
     fetchSongs();
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
   }
 
   Future<void> fetchSongs() async {
@@ -34,6 +44,17 @@ class _PlaylistPageState extends State<PlaylistPage> {
         songs = data['results'];
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> playPreview(String url, int index) async {
+    if (playingIndex == index) {
+      await _audioPlayer.stop();
+      setState(() => playingIndex = null);
+    } else {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(UrlSource(url));
+      setState(() => playingIndex = index);
     }
   }
 
@@ -94,30 +115,106 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               horizontal: 16,
                               vertical: 8,
                             ),
-                            child: ListTile(
-                              leading: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.network(song['artworkUrl60']),
-                              ),
-                              title: Text(
-                                song['trackName'] ?? 'No title',
-                                style: const TextStyle(
-                                  color: Color(0xFF4E342E),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Text(
-                                song['artistName'] ?? '',
-                                style: const TextStyle(
-                                  color: Color(0xFF6D4C41),
-                                ),
-                              ),
-                              trailing: IconButton(
-                                icon: const Icon(
-                                  Icons.play_arrow,
-                                  color: Colors.brown,
-                                ),
-                                onPressed: () {},
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8,
+                              ), // ✨ beri ruang tinggi
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.network(
+                                      song['artworkUrl60'],
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          song['trackName'] ?? 'No title',
+                                          style: const TextStyle(
+                                            color: Color(0xFF4E342E),
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          song['artistName'] ?? '',
+                                          style: const TextStyle(
+                                            color: Color(0xFF6D4C41),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(
+                                              playingIndex == index
+                                                  ? Icons.pause_circle_filled
+                                                  : Icons.play_circle_fill,
+                                              color: Colors.brown,
+                                              size: 30,
+                                            ),
+                                            onPressed: () {
+                                              final url = song['previewUrl'];
+                                              if (url != null) {
+                                                playPreview(url, index);
+                                              }
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.open_in_new,
+                                              color: Colors.green,
+                                            ),
+                                            onPressed: () async {
+                                              final url = song['trackViewUrl'];
+                                              if (url != null) {
+                                                final uri = Uri.parse(url);
+                                                if (await canLaunchUrl(uri)) {
+                                                  await launchUrl(uri);
+                                                } else {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                        'Tidak dapat membuka URL',
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                              }
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      const Padding(
+                                        padding: EdgeInsets.only(right: 8.0),
+                                        child: Text(
+                                          '🎵30detik  •lengkap➚',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
                           );

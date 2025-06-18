@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../pages/homepage.dart';
 import '../pages/playlist.dart';
-import '../pages/player.dart';
 import '../pages/search.dart';
 
 class AppRouter {
@@ -15,13 +14,6 @@ class AppRouter {
         builder: (context, state) {
           final mood = state.pathParameters['mood']!;
           return PlaylistPage(mood: mood);
-        },
-      ),
-      GoRoute(
-        path: '/player/:playlistId',
-        builder: (context, state) {
-          final playlistId = state.pathParameters['playlistId']!;
-          return PlayerPage(playlistId: playlistId);
         },
       ),
       GoRoute(path: '/search', builder: (context, state) => const SearchPage()),
