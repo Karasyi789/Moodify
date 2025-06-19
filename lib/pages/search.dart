@@ -160,7 +160,7 @@ class _SearchPageState extends State<SearchPage> {
                                 maxCrossAxisExtent: 160,
                                 mainAxisSpacing: 11,
                                 crossAxisSpacing: 11,
-                                childAspectRatio: 0.64,
+                                childAspectRatio: 0.53,
                               ),
                           itemBuilder: (context, index) {
                             final song = searchResults[index];
@@ -169,7 +169,7 @@ class _SearchPageState extends State<SearchPage> {
                                 'https://open.spotify.com/search/${Uri.encodeComponent(song['trackName'] + ' ' + song['artistName'])}';
 
                             return Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFFFFBF2),
                                 borderRadius: BorderRadius.circular(8),
@@ -186,29 +186,47 @@ class _SearchPageState extends State<SearchPage> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   ClipRRect(
-                                    borderRadius: BorderRadius.circular(18),
-                                    child: Image.network(
-                                      song['artworkUrl100'],
-                                      height: 80,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: AspectRatio(
+                                      aspectRatio: 1 / 1,
+                                      child: Image.network(
+                                        song['artworkUrl100'],
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (
+                                          context,
+                                          error,
+                                          stackTrace,
+                                        ) {
+                                          return Container(
+                                            color: Colors.grey[300],
+                                            child: const Icon(
+                                              Icons.music_note,
+                                              size: 40,
+                                              color: Colors.grey,
+                                            ),
+                                          );
+                                        },
+                                      ),
                                     ),
                                   ),
+                                  const SizedBox(height: 4),
                                   Text(
                                     song['trackName'] ?? '',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 12,
+                                      fontSize: 11,
                                       color: Color(0xFF4E342E),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.center,
                                   ),
+                                  const SizedBox(height: 2),
                                   Text(
                                     song['artistName'] ?? '',
                                     style: const TextStyle(
-                                      fontSize: 10.5,
+                                      fontSize: 9.5,
                                       color: Colors.brown,
                                     ),
                                     maxLines: 1,
@@ -223,53 +241,79 @@ class _SearchPageState extends State<SearchPage> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceEvenly,
                                         children: [
-                                          IconButton(
-                                            icon: Icon(
-                                              _currentlyPlaying == previewUrl
-                                                  ? Icons.pause_circle_filled
-                                                  : Icons.play_circle_fill,
-                                              color: Colors.brown,
-                                              size: 20,
+                                          Expanded(
+                                            child: IconButton(
+                                              icon: Icon(
+                                                _currentlyPlaying == previewUrl
+                                                    ? Icons.pause_circle_filled
+                                                    : Icons.play_circle_fill,
+                                                color: Colors.brown,
+                                                size: 20,
+                                              ),
+                                              padding: EdgeInsets.zero,
+                                              constraints:
+                                                  const BoxConstraints(),
+                                              onPressed: () async {
+                                                if (_currentlyPlaying ==
+                                                    previewUrl) {
+                                                  await _audioPlayer.stop();
+                                                  setState(() {
+                                                    _currentlyPlaying = null;
+                                                  });
+                                                } else {
+                                                  await _audioPlayer.play(
+                                                    UrlSource(previewUrl),
+                                                  );
+                                                  setState(() {
+                                                    _currentlyPlaying =
+                                                        previewUrl;
+                                                  });
+                                                }
+                                              },
                                             ),
-                                            padding: EdgeInsets.zero,
-                                            constraints: const BoxConstraints(),
-                                            onPressed: () async {
-                                              if (_currentlyPlaying ==
-                                                  previewUrl) {
-                                                await _audioPlayer.stop();
-                                                setState(() {
-                                                  _currentlyPlaying = null;
-                                                });
-                                              } else {
-                                                await _audioPlayer.play(
-                                                  UrlSource(previewUrl),
-                                                );
-                                                setState(() {
-                                                  _currentlyPlaying =
-                                                      previewUrl;
-                                                });
-                                              }
-                                            },
                                           ),
-                                          IconButton(
-                                            icon: const Icon(
-                                              Icons.open_in_new,
-                                              color: Colors.green,
-                                              size: 20,
+                                          Expanded(
+                                            child: IconButton(
+                                              icon: const Icon(
+                                                Icons.open_in_new,
+                                                color: Colors.green,
+                                                size: 20,
+                                              ),
+                                              padding: EdgeInsets.zero,
+                                              constraints:
+                                                  const BoxConstraints(),
+                                              onPressed:
+                                                  () => _launchURL(spotifyUrl),
                                             ),
-                                            padding: EdgeInsets.zero,
-                                            constraints: const BoxConstraints(),
-                                            onPressed:
-                                                () => _launchURL(spotifyUrl),
                                           ),
                                         ],
                                       ),
-                                      const Text(
-                                        '🎵30detik  •lengkap➚',
-                                        style: TextStyle(
-                                          fontSize: 9,
-                                          color: Colors.grey,
-                                        ),
+                                      const SizedBox(height: 1),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              '🎵30detik',
+                                              style: const TextStyle(
+                                                fontSize: 7.5,
+                                                color: Colors.grey,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Text(
+                                              '•lengkap➚',
+                                              style: const TextStyle(
+                                                fontSize: 7.5,
+                                                color: Colors.grey,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
